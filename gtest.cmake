@@ -1,4 +1,4 @@
-set(GOOGLETEST_ROOT gtest/googletest CACHE STRING "Google Test source root")
+set(GOOGLETEST_ROOT googletest/googletest CACHE STRING "Google Test source root")
 
 include_directories(SYSTEM
     ${PROJECT_SOURCE_DIR}/${GOOGLETEST_ROOT}
@@ -14,5 +14,5 @@ foreach(_source ${GOOGLETEST_SOURCES})
     set_source_files_properties(${_source} PROPERTIES GENERATED 1)
 endforeach()
 
-add_library(gtest ${GOOGLETEST_SOURCES})
+add_library(googletest ${GOOGLETEST_SOURCES})
 
