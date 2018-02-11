@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void failif(int x) { if (x) exit(x); }
 
 struct cl_node_t {
@@ -134,3 +138,7 @@ size_t cl_size(const cl_t* l) { return l->count; }
 // }
 
 // int cl_remove(cl_t* l, int (*predicate)(const cl_node_t* const)) { return 0; }
+
+#ifdef __cplusplus
+}
+#endif

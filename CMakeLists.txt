@@ -1,23 +1,18 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(clist)
-file(GLOB SOURCES src/*.c)
-add_library(clist ${SOURCES})
-target_include_directories(clist INTERFACE include/)
-set_target_properties(clist PROPERTIES LINKER_LANGUAGE CXX)
-include_directories(include/)
+add_library(clist src/clist.c)
 
 include(googletest.cmake)
 
 SET(COVERAGE OFF CACHE BOOL "Coverage")
 
-add_executable(cl_tests tests/clist_unittests.cc src/clist.c)
+add_executable(tests tests/clist_unittests.cc)
 
 find_package (Threads)
-target_link_libraries(cl_tests googletest ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(cl_tests clist)
+target_link_libraries(tests googletest ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(tests clist)
 
-target_compile_options(cl_tests PRIVATE
+target_compile_options(tests PRIVATE
   -g -Wall
   -Werror
   -Wextra
@@ -32,7 +27,7 @@ target_compile_options(cl_tests PRIVATE
   -Wundef)
   
 if (COVERAGE)
-    target_compile_options(cl_tests PRIVATE --coverage)
-    target_link_libraries(cl_tests PRIVATE --coverage)
+    target_compile_options(tests PRIVATE --coverage)
+    target_link_libraries(tests PRIVATE --coverage)
 endif()
 

@@ -4,6 +4,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct cl_t cl_t;
 typedef struct cl_node_t cl_node_t;
 
@@ -27,5 +31,9 @@ size_t cl_size(const cl_t* l);
 // int cl_remove_no_dealloc(cl_t* l, int (*match)(const cl_node_t* const));
 // void cl_rm_node(const cl_node_t* const n, cl_t* const l);
 // void cl_set_only_node(cl_node_t* const n, cl_t* const l);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _CLIST_H_
