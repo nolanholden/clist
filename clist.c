@@ -1,25 +1,34 @@
+#include "clist.h"
+
 #include <stdlib.h>
-
-typedef struct Node {
-  struct Node* prev;
-  struct Node* next;
-  void* data;
-} node_t;
-
-node_t* const next(const node_t* const n) { return n->next; }
-node_t* const prev(const node_t* const n) { return n->prev; }
-void* data(const node_t* const n) { return n->data; }
-
-typedef struct List {
-  int count;
-  node_t* head;
-  node_t* tail;
-} list_t;
+#include <stdint.h>
 
 void failif(int x) { if (x) exit(x); }
 
-node_t* alloc_node(void* data) {
-  node_t* node = malloc(sizeof(node_t));
+typedef struct Node node_t;
+
+typedef struct Node {
+  node_t* prev;
+  node_t* next;
+  void* data;
+} node_t;
+
+typedef struct Clist {
+  size_t count;
+  node_t* head;
+  node_t* tail;
+} cl_t;
+
+const node_t* clist_head(const cl_t* l) { return l->head; }
+const node_t* ccl_tail(const cl_t* l) { return l->tail; }
+int clist_size(const cl_t* l) { return l->count; }
+const node_t* clist_next(const node_t* const n) { return n->next; }
+const node_t* clist_prev(const node_t* const n) { return n->prev; }
+void* clist_data(const node_t* const n) { return n->data; }
+
+
+node_t* clist_alloc_node(void* data) {
+  node_t* node = (node_t*)malloc(sizeof(node_t));
   failif(!node);
 
   node->next  = NULL;
@@ -28,8 +37,8 @@ node_t* alloc_node(void* data) {
   return node;
 }
 
-list_t* alloc_list() {
-  list_t* list = malloc(sizeof(list_t));
+cl_t* clist_alloc_list() {
+  cl_t* list = (cl_t*)malloc(sizeof(cl_t));
   failif(!list);
 
   list->head = NULL;
@@ -39,14 +48,11 @@ list_t* alloc_list() {
 
 
 // Return whether the list is empty. Always O(1).
-int is_empty(const list_t* const l) { return l->head == NULL && l->tail == NULL; }
+int clist_is_empty(const cl_t* const l) { return l->head == NULL && l->tail == NULL; }
 
 // Assuming first and second are connected nodes, insert the new node, 
 // updating the pointers to reflect the change.
-void insert_between(node_t* const new_node, node_t* const first, node_t* const second) {
-  assert(first->next == second);
-  assert(second->prev == first);
-  
+void clist_insert_between(node_t* const new_node, node_t* const first, node_t* const second) {
   first->next = new_node;
   new_node->prev = first;
 
@@ -56,7 +62,7 @@ void insert_between(node_t* const new_node, node_t* const first, node_t* const s
 
 // Set the node as the head and tail of the list. This does not check if list
 // is empty. If used improperly, data will be lost, memory potentially leaked.
-void set_only_node(node_t* const n, list_t* const l) {
+void clist_set_only_node(node_t* const n, cl_t* const l) {
   l->head = n;
   l->tail = n;
   l->count = 1;
@@ -65,7 +71,7 @@ void set_only_node(node_t* const n, list_t* const l) {
 
 // Push a node to the front. If the list is empty, node will become head and
 // tail.
-void push_front(node_t* const n, list_t* const l) {
+void clist_push_front(node_t* const n, cl_t* const l) {
   if (is_empty(l)) return set_only_node(n, l);
   
   l->head->prev = n;
@@ -77,12 +83,12 @@ void push_front(node_t* const n, list_t* const l) {
 
 // Find a node in the list which matches the predicate. If predicate returns 0,
 // no match; for return != 0, it is match.
-node_t* find(int(*predicate)(const node_t*), const list_t* const l) {
+node_t* clist_find(int(*predicate)(const node_t*), const cl_t* const l) {
   for (const node_t* n = l->head; n != NULL; n = n->next)
     if (predicate(n)) return n;
 }
 
-void rm_node(const node_t* const n, list_t* const l) {
+void clist_rm_node(const node_t* const n, cl_t* const l) {
   if (l->head == n){
     if (l->tail == n) l->head = l->tail = NULL;
     else l->head = n->next;
@@ -95,10 +101,9 @@ void rm_node(const node_t* const n, list_t* const l) {
   if (n->next && !n->prev) {
     n->next->prev = NULL;
   }
+}
 
-
-
-void push_back(node_t* n, list_t* l) {
+void clist_push_back(node_t* n, cl_t* l) {
   if (is_empty(l)) return set_only_node(n, l);
 
   node_t* const tail_node = l->tail;
@@ -110,7 +115,7 @@ void push_back(node_t* n, list_t* l) {
 
 // Based on a predicate which returns non-zero to indicate a node should be 
 // removed, removes the applicable nodes and returns how many were removed;
-int remove_no_dealloc(list_t* l, int (*match)(const node_t* const)) {
+int clist_remove_no_dealloc(cl_t* l, int (*match)(const node_t* const)) {
   int num_removed = 0;
 
   for (node_t* node = l->head; node != NULL; node = node->next) {
@@ -129,4 +134,4 @@ int remove_no_dealloc(list_t* l, int (*match)(const node_t* const)) {
   return num_removed;
 }
 
-int remove(list_t* l, int (*predicate)(const node_t* const)) {
+int clist_remove(cl_t* l, int (*predicate)(const node_t* const)) { return 0; }
