@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 
-add_library(clist src/clist.c)
+file(GLOB CLIST_SOURCES src/*.c)
+add_library(clist ${CLIST_SOURCES})
+set_target_properties(clist PROPERTIES LINKER_LANGUAGE C)
+target_include_directories(clist INTERFACE include/)
 
 include(googletest.cmake)
 
@@ -30,4 +33,3 @@ if (COVERAGE)
     target_compile_options(tests PRIVATE --coverage)
     target_link_libraries(tests PRIVATE --coverage)
 endif()
-
