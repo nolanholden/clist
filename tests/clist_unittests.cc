@@ -114,20 +114,20 @@ int sort_int_nodes(cl_node_t* first, cl_node_t* second) {
     : a > b ? 1 : -1;
 }
 
-TEST(clist, sort) {
-  srand(time(NULL));
-  const size_t num_nodes = 100;
-  cl_t* l = cl_alloc_list();
+// TEST(clist, sort) {
+//   srand(time(NULL));
+//   const size_t num_nodes = 100;
+//   cl_t* l = cl_alloc_list();
 
-  for (size_t i = 0; i < num_nodes; ++i) {
-    int* num = (int*)malloc(sizeof(*num));
-    *num = rand();
-    cl_push_front(l, cl_alloc_node(num));
-  }
+//   for (size_t i = 0; i < num_nodes; ++i) {
+//     int* num = (int*)malloc(sizeof(*num));
+//     *num = rand();
+//     cl_push_front(l, cl_alloc_node(num));
+//   }
 
-  cl_sort(l, sort_int_nodes);
+//   cl_sort(l, sort_int_nodes);
 
-  for (cl_node_t* n = cl_head(l); n != cl_tail(l); n = cl_next(n)) {
+//   for (cl_node_t* n = cl_head(l); n != cl_tail(l); n = cl_next(n)) {
     
-  }
-}
+//   }
+// }

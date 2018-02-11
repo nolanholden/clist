@@ -8,8 +8,6 @@
 extern "C" {
 #endif
 
-void failif(int x) { if (x) exit(x); }
-
 struct cl_node_t {
   cl_node_t* prev;
   cl_node_t* next;
@@ -22,6 +20,9 @@ struct cl_t {
   cl_node_t* tail;
 };
 
+// non-exported helper functions:
+
+void failif(int x) { if (x) exit(x); }
 void cl_swap_left(cl_t* const l, cl_node_t* const n) {
   if (l == NULL || n == NULL || n->prev == NULL) return;
   cl_node_t* const left = n->prev;
@@ -36,6 +37,8 @@ void cl_swap_left(cl_t* const l, cl_node_t* const n) {
   left->prev = n;
   left->next = rmargin;
 }
+
+// end non-exported helper functions
 
 cl_t* cl_alloc_list() {
   cl_t* list = (cl_t*)malloc(sizeof(cl_t));
@@ -167,8 +170,6 @@ cl_node_t* cl_find(int(*predicate)(const cl_node_t*), const cl_t* const l) {
 
   return NULL;
 }
-
-// int cl_remove(cl_t* l, int (*predicate)(const cl_node_t* const)) { return 0; }
 
 #ifdef __cplusplus
 }
