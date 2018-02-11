@@ -15,4 +15,3 @@ foreach(_source ${GOOGLETEST_SOURCES})
 endforeach()
 
 add_library(googletest ${GOOGLETEST_SOURCES})
-
