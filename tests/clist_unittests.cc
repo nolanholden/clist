@@ -107,27 +107,66 @@ TEST(clist, push_pop) {
   cl_destroy(l);
 }
 
-int sort_int_nodes(cl_node_t* first, cl_node_t* second) {
-  int a = *(int*)cl_data(first);
-  int b = *(int*)cl_data(second);
-  return a == b ? 0
-    : a > b ? 1 : -1;
+int sort_int_nodes(void* first, void* second) {
+  int a = *(int*)first;
+  int b = *(int*)second;
+  return a > b ? 1 : 0;
 }
 
-// TEST(clist, sort) {
-//   srand(time(NULL));
-//   const size_t num_nodes = 100;
-//   cl_t* l = cl_alloc_list();
+TEST(clist, validate_test_comparater) {
+  int a = 1;
+  ASSERT_EQ(0, sort_int_nodes(&a, &a));
 
-//   for (size_t i = 0; i < num_nodes; ++i) {
-//     int* num = (int*)malloc(sizeof(*num));
-//     *num = rand();
-//     cl_push_front(l, cl_alloc_node(num));
-//   }
+  int b = 2;
+  ASSERT_EQ(0, sort_int_nodes(&a, &b));
+  ASSERT_EQ(1, sort_int_nodes(&b, &a));
+}
 
-//   cl_sort(l, sort_int_nodes);
+TEST(clist, sort_empty) {
+  cl_t* l = NULL;
+  cl_sort(l, NULL);
+  ASSERT_EQ(NULL, (l));
+  cl_destroy(l);
 
-//   for (cl_node_t* n = cl_head(l); n != cl_tail(l); n = cl_next(n)) {
-    
-//   }
-// }
+  l = cl_alloc_list();
+
+  cl_sort(l, NULL);
+  ASSERT_EQ(NULL, cl_head(l));
+  ASSERT_EQ(NULL, cl_tail(l));
+  cl_destroy(l);
+}
+
+TEST(clist, sort_one) {
+  cl_t* l = cl_alloc_list();
+  int* num = (int*)malloc(sizeof(*num));
+  *num = 127;
+  cl_push_back(l, cl_alloc_node(num));
+  cl_sort(l, NULL);
+  cl_sort(l, sort_int_nodes);
+
+  cl_destroy(l);
+}
+
+TEST(clist, sort_many) {
+  for (int i = 0; i < 1000; ++i) {
+    srand((unsigned int)time(NULL));
+    const size_t num_nodes = 100;
+    cl_t* l = cl_alloc_list();
+
+    for (size_t j = 0; j < num_nodes; ++j) {
+      int* num = (int*)malloc(sizeof(*num));
+      *num = rand();
+      cl_push_front(l, cl_alloc_node(num));
+    }
+
+    cl_sort(l, sort_int_nodes);
+
+    for (const cl_node_t* n = cl_head(l); n != cl_tail(l); n = cl_next(n)) {
+      int a = *(int*)cl_data(n);
+      int b = *(int*)cl_data(cl_next(n));
+      ASSERT_LE(a, b);
+    }
+
+    cl_destroy(l);
+  }
+}

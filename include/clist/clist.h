@@ -27,13 +27,12 @@ void cl_destroy_node(cl_node_t* n);
 void cl_push_front(cl_t* l, cl_node_t* n);
 void cl_push_back(cl_t* l, cl_node_t* n);
 cl_node_t* cl_pop_back(cl_t* l);
-void cl_pop_front(cl_t* l);
+cl_node_t* cl_pop_front(cl_t* l);
 
 // Return whether the list is empty. Always O(1).
 int cl_is_empty(const cl_t* l);
 
-void cl_sort(const cl_t* l,
-    int(*greater_than)(const cl_node_t* first, const cl_node_t* second));
+void cl_sort(cl_t* l, int(*greater_than)(void* first, void* second));
 
 // Find a node in the list which matches the predicate. If predicate returns 0,
 // no match; for return != 0, it is match.
