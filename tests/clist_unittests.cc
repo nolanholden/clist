@@ -171,27 +171,69 @@ TEST(clist, sort_many) {
   }
 }
 
-// int is_five(const void* data) { return *(int*)data == 5 ? 1 : 0; }
+int is_five(const void* data) { return *(int*)data == 5 ? 1 : 0; }
 
-// TEST(clist, find_zero) {
-//   cl_t* l = NULL;
-//   ASSERT_EQ(NULL, cl_find(l, NULL));
+TEST(clist, find_zero) {
+  cl_t* l = NULL;
+  ASSERT_EQ(NULL, cl_find(l, NULL));
 
-//   l = cl_alloc_list();
-//   ASSERT_EQ(NULL, cl_find(l, NULL));
-//   cl_destroy(l);
-// }
+  l = cl_alloc_list();
+  ASSERT_EQ(NULL, cl_find(l, NULL));
+  cl_destroy(l);
+}
 
-// TEST(clist, find_one) {
-//   cl_t* l = cl_alloc_list();
+TEST(clist, find_one) {
+  cl_t* l = cl_alloc_list();
 
-//   int* num = (int*)malloc(sizeof(*num));
-//   *num = 4;
-//   cl_push_back(l, cl_alloc_node(num));
-//   ASSERT_EQ(NULL, cl_find(l, is_five));
+  int* num = (int*)malloc(sizeof(*num));
+  *num = 4;
+  cl_push_back(l, cl_alloc_node(num));
+  ASSERT_EQ(NULL, cl_find(l, is_five));
 
-//   *num = 5;
-//   ASSERT_EQ(num, cl_data(cl_find(l, is_five)));
+  *num = 5;
+  ASSERT_EQ(num, cl_data(cl_find(l, is_five)));
 
-//   cl_destroy(l);
-// }
+  cl_destroy(l);
+}
+
+TEST(clist, find_many) {
+  for (int i = 0; i < 1000; ++i) {
+    srand((unsigned int)time(NULL));
+    const size_t num_nodes = 100;
+    cl_t* l = cl_alloc_list();
+    
+    for (size_t j = 0; j < num_nodes; ++j) {
+      int* num = (int*)malloc(sizeof(*num));
+      *num = rand();
+      if (*num == 5) *num = 6;
+      cl_push_front(l, cl_alloc_node(num));
+    }
+
+    ASSERT_EQ(NULL, cl_find(l, is_five));
+
+    cl_destroy(l);
+  }
+
+  for (int i = 0; i < 1000; ++i) {
+    srand((unsigned int)time(NULL));
+    const size_t num_nodes = 100;
+    cl_t* l = cl_alloc_list();
+    
+    const size_t select = rand() % num_nodes;
+    const int* selected = NULL;
+    for (size_t j = 0; j < num_nodes; ++j) {
+      int* num = (int*)malloc(sizeof(*num));
+      *num = 6;
+      if (j == select) {
+        *num = 5;
+        selected = num;
+      }
+      cl_push_front(l, cl_alloc_node(num));
+    }
+
+    cl_node_t* found_node = cl_find(l, is_five);
+    ASSERT_EQ(selected, (int*)cl_data(found_node));
+
+    cl_destroy(l);
+  }
+}

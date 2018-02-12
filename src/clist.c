@@ -161,8 +161,10 @@ void cl_sort(cl_t* l, int(*greater_than)(const void* first, const void* second))
 // Find a node in the list which matches the predicate. If predicate returns 0,
 // no match; for return != 0, it is match.
 cl_node_t* cl_find(const cl_t* const l, int(*predicate)(const void* data)) {
+  if (l == NULL || l->count < 1 || predicate == NULL) return NULL;
+
   for (cl_node_t* n = l->head; n != NULL; n = n->next)
-    if (predicate(n))
+    if (predicate(n->data))
       return n;
 
   return NULL;
