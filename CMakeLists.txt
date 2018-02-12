@@ -15,7 +15,7 @@ target_link_libraries(tests googletest ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(tests clist)
 
 target_compile_options(tests PRIVATE
-  -g -Wall
+  -Wall
   -Werror
   -Wextra
   -Wpedantic
