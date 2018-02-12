@@ -107,7 +107,7 @@ TEST(clist, push_pop) {
   cl_destroy(l);
 }
 
-int sort_int_nodes(void* first, void* second) {
+int sort_int_nodes(const void* first, const void* second) {
   int a = *(int*)first;
   int b = *(int*)second;
   return a > b ? 1 : 0;
@@ -170,3 +170,28 @@ TEST(clist, sort_many) {
     cl_destroy(l);
   }
 }
+
+// int is_five(const void* data) { return *(int*)data == 5 ? 1 : 0; }
+
+// TEST(clist, find_zero) {
+//   cl_t* l = NULL;
+//   ASSERT_EQ(NULL, cl_find(l, NULL));
+
+//   l = cl_alloc_list();
+//   ASSERT_EQ(NULL, cl_find(l, NULL));
+//   cl_destroy(l);
+// }
+
+// TEST(clist, find_one) {
+//   cl_t* l = cl_alloc_list();
+
+//   int* num = (int*)malloc(sizeof(*num));
+//   *num = 4;
+//   cl_push_back(l, cl_alloc_node(num));
+//   ASSERT_EQ(NULL, cl_find(l, is_five));
+
+//   *num = 5;
+//   ASSERT_EQ(num, cl_data(cl_find(l, is_five)));
+
+//   cl_destroy(l);
+// }

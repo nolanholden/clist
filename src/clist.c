@@ -146,7 +146,7 @@ cl_node_t* cl_pop_front(cl_t* const l) {
 // Return whether the list is empty. Always O(1).
 int cl_is_empty(const cl_t* const l) { return l == NULL || l->count == 0; }
 
-void cl_sort(cl_t* l, int(*greater_than)(void* first, void* second)) {
+void cl_sort(cl_t* l, int(*greater_than)(const void* first, const void* second)) {
   if (l == NULL || l->count <= 1 || greater_than == NULL) return;
 
   for (cl_node_t* n = l->head->next; n != NULL; n = n->next) {
@@ -160,7 +160,7 @@ void cl_sort(cl_t* l, int(*greater_than)(void* first, void* second)) {
 
 // Find a node in the list which matches the predicate. If predicate returns 0,
 // no match; for return != 0, it is match.
-cl_node_t* cl_find(int(*predicate)(const cl_node_t*), const cl_t* const l) {
+cl_node_t* cl_find(const cl_t* const l, int(*predicate)(const void* data)) {
   for (cl_node_t* n = l->head; n != NULL; n = n->next)
     if (predicate(n))
       return n;

@@ -32,4 +32,3 @@ if (COVERAGE)
     target_compile_options(tests PRIVATE --coverage)
     target_link_libraries(tests PRIVATE --coverage)
 endif()
-
