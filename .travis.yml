@@ -5,11 +5,12 @@ language: cpp
 addons:
   apt:
     sources:
-      - ubuntu-toolchain-r-test
       - llvm-toolchain-trusty-5.0
+      - ubuntu-toolchain-r-test
     packages:
-      - g++-6
       - clang-5.0
+      - g++-6
+      - valgrind
 
 before_install:
   - pip install --user cpp-coveralls
