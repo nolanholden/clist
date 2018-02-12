@@ -116,31 +116,37 @@ void cl_push_back(cl_t* const l, cl_node_t* const n) {
 }
 
 cl_node_t* cl_pop_back(cl_t* const l) {
-  if (l == NULL || l->tail == NULL) return NULL;
+  if (l == NULL || l->count < 1) return NULL;
 
-  cl_node_t* const back = l->tail;
-  cl_node_t* const left = back->prev;
+  cl_node_t* const popped = l->tail;
 
-  l->tail = left;
-  left->next = NULL;
+  if (l->count-- == 1) {
+    l->head = l->tail = NULL;
+    return popped;
+  }
 
-  back->next = back->prev = NULL;
-  l->count--;
-  return back;
+  l->tail = popped->prev;
+  l->tail->next = NULL;
+
+  popped->next = popped->prev = NULL;
+  return popped;
 }
 
 cl_node_t* cl_pop_front(cl_t* const l) {
-  if (l == NULL || l->tail == NULL) return NULL;
-
-  cl_node_t* const front = l->tail;
-  cl_node_t* const right = right->next;
-
-  l->head = right;
-  right->prev = NULL;
+  if (l == NULL || l->count < 1) return NULL;
   
-  front->next = front->prev = NULL;
-  l->count--;
-  return front;
+  cl_node_t* const popped = l->head;
+  
+  if (l->count-- == 1) {
+    l->head = l->tail = NULL;
+    return popped;
+  }
+
+  l->head = popped->next;
+  l->head->prev = NULL;
+
+  popped->next = popped->prev = NULL;
+  return popped;
 }
 
 // Return whether the list is empty. Always O(1).

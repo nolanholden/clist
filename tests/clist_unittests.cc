@@ -52,7 +52,7 @@ TEST(clist, push_pop_one) {
   }
 }
 
-TEST(clist, push_pop) {
+TEST(clist, pushing) {
   cl_node_t* n1 = cl_alloc_node(strdup("hello, world1"));
   cl_node_t* n2 = cl_alloc_node(strdup("hello, world2"));
   cl_node_t* n3 = cl_alloc_node(strdup("hello, world3"));
@@ -104,6 +104,79 @@ TEST(clist, push_pop) {
     ASSERT_STREQ(test_str, (char*)cl_data(nodes[i]));
   }
 
+  cl_destroy(l);
+}
+
+TEST(clist, popping1) {
+  cl_node_t* n1 = cl_alloc_node(strdup("hello, world1"));
+  cl_node_t* n2 = cl_alloc_node(strdup("hello, world2"));
+  cl_node_t* n3 = cl_alloc_node(strdup("hello, world3"));
+  cl_node_t* n4 = cl_alloc_node(strdup("hello, world4"));
+  cl_node_t* n5 = cl_alloc_node(strdup("hello, world5"));
+  
+  cl_t* l = cl_alloc_list();
+  cl_push_back(l, n1);
+  cl_push_back(l, n2);
+  cl_push_back(l, n3);
+  cl_push_back(l, n4);
+  cl_push_back(l, n5);
+
+  ASSERT_EQ(5, cl_size(l));
+  ASSERT_EQ(n1, cl_pop_front(l));
+  ASSERT_EQ(NULL, cl_prev(cl_head(l)));
+  ASSERT_EQ(4, cl_size(l));
+  ASSERT_EQ(n2, cl_pop_front(l));
+  ASSERT_EQ(3, cl_size(l));
+
+  ASSERT_EQ(n3, cl_pop_front(l));
+  ASSERT_EQ(n4, cl_pop_front(l));
+  ASSERT_EQ(n5, cl_pop_front(l));
+  ASSERT_EQ(0, cl_size(l));
+  ASSERT_EQ(NULL, cl_pop_front(l));
+  ASSERT_EQ(NULL, cl_pop_back(l));
+  ASSERT_EQ(0, cl_size(l));
+  
+  cl_destroy_node(n1);
+  cl_destroy_node(n2);
+  cl_destroy_node(n3);
+  cl_destroy_node(n4);
+  cl_destroy_node(n5);
+
+  cl_destroy(l);
+}
+
+TEST(clist, popping2) {
+  cl_node_t* n1 = cl_alloc_node(strdup("hello, world1"));
+  cl_node_t* n2 = cl_alloc_node(strdup("hello, world2"));
+  cl_node_t* n3 = cl_alloc_node(strdup("hello, world3"));
+  cl_node_t* n4 = cl_alloc_node(strdup("hello, world4"));
+  cl_node_t* n5 = cl_alloc_node(strdup("hello, world5"));
+  
+  cl_t* l = cl_alloc_list();
+  cl_push_back(l, n1);
+  cl_push_back(l, n2);
+  cl_push_back(l, n3);
+  cl_push_back(l, n4);
+  cl_push_back(l, n5);
+
+  ASSERT_EQ(n1, cl_pop_front(l));
+  ASSERT_EQ(n2, cl_pop_front(l));
+  ASSERT_EQ(n5, cl_pop_back(l));
+  ASSERT_EQ(NULL, cl_next(cl_tail(l)));
+  ASSERT_EQ(2, cl_size(l));
+  ASSERT_EQ(n3, cl_pop_front(l));
+  ASSERT_EQ(n4, cl_pop_back(l));
+  ASSERT_EQ(NULL, cl_pop_back(l));
+  ASSERT_EQ(0, cl_size(l));
+  ASSERT_EQ(NULL, cl_head(l));
+  ASSERT_EQ(NULL, cl_tail(l));
+  
+  cl_destroy_node(n1);
+  cl_destroy_node(n2);
+  cl_destroy_node(n3);
+  cl_destroy_node(n4);
+  cl_destroy_node(n5);
+  
   cl_destroy(l);
 }
 
