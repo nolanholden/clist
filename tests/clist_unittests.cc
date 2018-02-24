@@ -401,19 +401,3 @@ TEST(clist, foreach) {
 
   cl_destroy(l, NULL);
 }
-
-// // iterator
-// TEST(clist, iterator) {
-//   cl_t* l = cl_alloc_list();
-//   const size_t size = 100;
-//   int nums[size];
-//   for (size_t i = 0; i < size; ++i) {
-//     nums[i] = i;
-//     cl_empl_back(l, &nums[i]);
-//   }
-
-
-
-//   for (cl_itr* i = cl_itr(l); i != NULL; i = cl_itr_next(i))
-
-// }
