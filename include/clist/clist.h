@@ -86,6 +86,20 @@ void cl_sort(cl_t* l, int(*greater_than)(const void* first, const void* second))
 // no match; for return != 0, it is match.
 cl_node_t* cl_find(const cl_t* l, int(*predicate)(const void* data));
 
+
+
+
+
+
+// SORTED LIST
+typedef cl_t csl_t;
+
+// Dynamically allocate a new, empty sorted list. Returns NULL and does not 
+// allocate if comparator function is NULL. Returns NULL on failure to 
+// allocate.
+csl_t* cl_sorted_alloc(int (*greater_than)(const void* first, const void* second));
+
+
 #ifdef __cplusplus
 }
 #endif

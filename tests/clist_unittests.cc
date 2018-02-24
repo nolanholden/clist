@@ -383,8 +383,8 @@ TEST(clist, foreach) {
   cl_t* l = cl_alloc_list();
   const int size = 100;
   int nums[size];
-  for (size_t i = 0; i < size; ++i) {
-    nums[i] = (int)i;
+  for (int i = 0; i < size; ++i) {
+    nums[i] = i;
     cl_empl_back(l, &nums[i]);
   }
 
@@ -415,3 +415,24 @@ TEST(clist, no_calls_if_null) {
 
   cl_destroy(l, NULL);
 }
+
+int int_greater_than(const void* a, const void* b) {
+  return *(int*)a > *(int*)b;
+}
+
+// // also, we are interested in whether this causes memory leak; it should not
+// TEST(clist_sorted, no_init) {
+//   ASSERT_EQ(NULL, cl_sorted_alloc(NULL));
+// }
+
+// TEST(clist_sorted, init) {
+//   cl_sorted_t* sl = cl_sorted_alloc(int_greater_than);
+//   srand((unsigned)time(NULL));
+//   const int size = 100;
+//   int nums[size];
+//   for (int i = 0; i < size; ++i) {
+//     nums[i] = rand();
+//     cl_empl_back(l, &nums[i]);
+//   }
+//   cl_foreach()
+// }
