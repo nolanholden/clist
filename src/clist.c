@@ -7,20 +7,20 @@
 extern "C" {
 #endif
 
-struct cl_node_t {
+struct cl_node {
   cl_node_t* prev;
   cl_node_t* next;
   void* data;
 };
 
-struct cl_t {
+struct cl {
   size_t count;
   cl_node_t* head;
   cl_node_t* tail;
 };
 
 // sorted version
-struct csl_t {
+struct csl {
   size_t count;
   cl_node_t* head;
   cl_node_t* tail;
@@ -62,7 +62,7 @@ cl_t* cl_alloc_list() {
   void \
   prefix##_foreach(type* l, void(*use_data)(void* data)) { \
     if (l == NULL || use_data == NULL) return; \
-    for (const cl_node_t* n = cl_peak_front(l); n != NULL; n = cl_next(n)) { \
+    for (const cl_node_t* n = prefix##_peak_front(l); n != NULL; n = cl_next(n)) { \
       use_data(cl_data(n)); \
     } \
   } \
@@ -95,7 +95,7 @@ cl_t* cl_alloc_list() {
   } \
   void* \
   prefix##_popd_back(type* const l) { \
-    cl_node_t* n = cl_pop_back(l); \
+    cl_node_t* n = prefix##_pop_back(l); \
     void* data = cl_data(n); \
     cl_destroy_node(n, NULL); \
     return data; \
@@ -119,7 +119,7 @@ cl_t* cl_alloc_list() {
   } \
   void* \
   prefix##_popd_front(type* l) { \
-    cl_node_t* n = cl_pop_front(l); \
+    cl_node_t* n = prefix##_pop_front(l); \
     void* data = cl_data(n); \
     cl_destroy_node(n, NULL); \
     return data; \
