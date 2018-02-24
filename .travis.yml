@@ -19,4 +19,4 @@ script:
   - ./travis.sh
 
 after_success:
-  - coveralls --root . -E ".*CMakeFiles.*" --exclude googletest/
+  - coveralls --root . -E ".*CMakeFiles.*" -e googletest/ -E *unittest*
