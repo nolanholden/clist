@@ -401,3 +401,17 @@ TEST(clist, foreach) {
 
   cl_destroy(l, NULL);
 }
+
+
+#define UNUSED(x) do{ (void)x; } while (0)
+int num_calls2 = 0;
+void use_data_dummy(void* data) { ++num_calls2; UNUSED(data); }
+int comparator_dummy(const void* a, const void* b) { ++num_calls2; UNUSED(a); UNUSED(b); return 0; }
+
+TEST(clist, no_calls_if_null) {
+  cl_t* l = cl_alloc_list();
+  cl_foreach(l, use_data_dummy);
+  cl_sort(l, comparator_dummy);
+
+  cl_destroy(l, NULL);
+}
