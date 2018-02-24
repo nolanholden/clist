@@ -24,18 +24,11 @@ struct cl_t {
 
 void failif(int x) { if (x) exit(x); }
 
-enum {
-  LMARGIN = 0,
-  LEFT    = 1,
-  RIGHT   = 2,
-  RMARGIN = 3
-};
-
 // end non-exported helpers
 
 cl_t* cl_alloc_list() {
   cl_t* list = (cl_t*)malloc(sizeof(cl_t));
-  failif(!list);
+  if (!list) return NULL;
 
   list->count = 0;
   list->head = NULL;
@@ -44,12 +37,12 @@ cl_t* cl_alloc_list() {
 }
 
 size_t cl_size(const cl_t* l) { return l->count; }
-cl_node_t* cl_head(const cl_t* l) { return l->head; }
-cl_node_t* cl_tail(const cl_t* l) { return l->tail; }
+const cl_node_t* cl_peak_front(const cl_t* l) { return l->head; }
+const cl_node_t* cl_peak_back(const cl_t* l) { return l->tail; }
 
 cl_node_t* cl_alloc_node(void* data) {
   cl_node_t* node = (cl_node_t*)malloc(sizeof(cl_node_t));
-  failif(!node);
+  if (!node) return NULL;
 
   node->next  = NULL;
   node->prev = NULL;
@@ -60,11 +53,11 @@ cl_node_t* cl_alloc_node(void* data) {
 const cl_node_t* cl_next(const cl_node_t* const n) { return n->next; }
 const cl_node_t* cl_prev(const cl_node_t* const n) { return n->prev; }
 void* cl_data(const cl_node_t* const n) { return n->data; }
-void cl_destroy(cl_t* const l) {
+void cl_destroy(cl_t* const l, void(*destroy_data)(void* data)) {
   if (l == NULL) return;
 
   for (cl_node_t* n = l->head; n != NULL;) {
-    free(n->data);
+    if (destroy_data != NULL) destroy_data(n->data);
     cl_node_t* tmp = n;
     n = n->next;
     free(tmp);
@@ -74,15 +67,12 @@ void cl_destroy(cl_t* const l) {
   free(l);
 }
 
-void cl_destroy_node(cl_node_t* const n) {
+void cl_destroy_node(cl_node_t* const n, void(*destroy_data)(void* data)) {
   if (n == NULL) return;
-  free(n->data);
+  if (destroy_data != NULL) destroy_data(n->data);
   free(n);
 }
 
-
-// Push a node to the front. If the list is empty, node will become head and
-// tail.
 void cl_push_front(cl_t* const l, cl_node_t* const n) {
   if (l == NULL || n == NULL) return;
   if (cl_is_empty(l)) {
@@ -98,6 +88,15 @@ void cl_push_front(cl_t* const l, cl_node_t* const n) {
   l->head = n;
   l->count++;
 }
+
+void cl_foreach(cl_t* l, void(*use_data)(void* data)) {
+  if (l == NULL || use_data == NULL) return;
+  for (const cl_node_t* n = cl_peak_front(l); n != NULL; n = cl_next(n)) {
+    use_data(cl_data(n));
+  }
+}
+
+void cl_empl_front(cl_t* l, void* data) { cl_push_front(l, cl_alloc_node(data)); }
 
 void cl_push_back(cl_t* const l, cl_node_t* const n) {
   if (l == NULL || n == NULL) return;
@@ -115,6 +114,8 @@ void cl_push_back(cl_t* const l, cl_node_t* const n) {
   l->count++;
 }
 
+void cl_empl_back(cl_t* l, void* data) { cl_push_back(l, cl_alloc_node(data)); }
+
 cl_node_t* cl_pop_back(cl_t* const l) {
   if (l == NULL || l->count < 1) return NULL;
 
@@ -130,6 +131,13 @@ cl_node_t* cl_pop_back(cl_t* const l) {
 
   popped->next = popped->prev = NULL;
   return popped;
+}
+
+void* cl_popd_back(cl_t* const l) {
+  cl_node_t* n = cl_pop_back(l);
+  void* data = cl_data(n);
+  cl_destroy_node(n, NULL);
+  return data;
 }
 
 cl_node_t* cl_pop_front(cl_t* const l) {
@@ -149,7 +157,13 @@ cl_node_t* cl_pop_front(cl_t* const l) {
   return popped;
 }
 
-// Return whether the list is empty. Always O(1).
+void* cl_popd_front(cl_t* l) {
+  cl_node_t* n = cl_pop_front(l);
+  void* data = cl_data(n);
+  cl_destroy_node(n, NULL);
+  return data;
+}
+
 int cl_is_empty(const cl_t* const l) { return l == NULL || l->count == 0; }
 
 void cl_sort(cl_t* l, int(*greater_than)(const void* first, const void* second)) {
@@ -164,8 +178,6 @@ void cl_sort(cl_t* l, int(*greater_than)(const void* first, const void* second))
   }
 }
 
-// Find a node in the list which matches the predicate. If predicate returns 0,
-// no match; for return != 0, it is match.
 cl_node_t* cl_find(const cl_t* const l, int(*predicate)(const void* data)) {
   if (l == NULL || l->count < 1 || predicate == NULL) return NULL;
 

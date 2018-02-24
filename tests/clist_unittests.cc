@@ -4,15 +4,19 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <time.h> // for rand() seeding
+
+void simple_free(void* data) {
+  free(data);
+}
 
 TEST(clist, initialize_list) {
   ASSERT_EQ(0,0);
   cl_t* l = cl_alloc_list();
   ASSERT_EQ(0, cl_size(l));
-  ASSERT_EQ(NULL, cl_head(l));
-  ASSERT_EQ(NULL, cl_tail(l));
-  cl_destroy(l);
+  ASSERT_EQ(NULL, cl_peak_front(l));
+  ASSERT_EQ(NULL, cl_peak_back(l));
+  cl_destroy(l, simple_free);
 }
 
 TEST(clist, initialize_node) {
@@ -28,7 +32,7 @@ TEST(clist, initialize_node) {
   for (int i = 0; i < 15; ++i)
     ASSERT_EQ(fifteen_chars[i], ((char*)cl_data(n))[i]);
 
-  cl_destroy_node(n);
+  cl_destroy_node(n, simple_free);
 }
 
 TEST(clist, push_pop_one) {
@@ -37,18 +41,18 @@ TEST(clist, push_pop_one) {
     cl_t* l = cl_alloc_list();
     cl_push_front(l, n);
     ASSERT_EQ(1, cl_size(l));
-    ASSERT_EQ(n, cl_head(l));
-    ASSERT_EQ(n, cl_tail(l));
-    cl_destroy(l);
+    ASSERT_EQ(n, cl_peak_front(l));
+    ASSERT_EQ(n, cl_peak_back(l));
+    cl_destroy(l, simple_free);
   }
   {
     cl_node_t* n = cl_alloc_node(strdup("hello, world"));
     cl_t* l = cl_alloc_list();
     cl_push_back(l, n);
     ASSERT_EQ(1, cl_size(l));
-    ASSERT_EQ(n, cl_head(l));
-    ASSERT_EQ(n, cl_tail(l));
-    cl_destroy(l);
+    ASSERT_EQ(n, cl_peak_front(l));
+    ASSERT_EQ(n, cl_peak_back(l));
+    cl_destroy(l, simple_free);
   }
 }
 
@@ -63,13 +67,13 @@ TEST(clist, pushing) {
   cl_push_front(l, n2);
   cl_push_back (l, n3);
   ASSERT_EQ(2, cl_size(l));
-  ASSERT_EQ(n2, cl_head(l));
-  ASSERT_EQ(n3, cl_tail(l));
+  ASSERT_EQ(n2, cl_peak_front(l));
+  ASSERT_EQ(n3, cl_peak_back(l));
   
   cl_push_front(l, n1);
   ASSERT_EQ(3,  cl_size(l));
-  ASSERT_EQ(n1, cl_head(l));
-  ASSERT_EQ(n3, cl_tail(l));
+  ASSERT_EQ(n1, cl_peak_front(l));
+  ASSERT_EQ(n3, cl_peak_back(l));
   ASSERT_EQ(NULL, cl_prev(n1));
   ASSERT_EQ(n2,   cl_next(n1));
   ASSERT_EQ(n1,   cl_prev(n2));
@@ -79,13 +83,13 @@ TEST(clist, pushing) {
 
   cl_push_back(l, n4);
   ASSERT_EQ(4, cl_size(l));
-  ASSERT_EQ(n1, cl_head(l));
-  ASSERT_EQ(n4, cl_tail(l));
+  ASSERT_EQ(n1, cl_peak_front(l));
+  ASSERT_EQ(n4, cl_peak_back(l));
 
   cl_push_back(l, n5);
   ASSERT_EQ(5, cl_size(l));
-  ASSERT_EQ(n1, cl_head(l));
-  ASSERT_EQ(n5, cl_tail(l));
+  ASSERT_EQ(n1, cl_peak_front(l));
+  ASSERT_EQ(n5, cl_peak_back(l));
   
   cl_node_t* nodes[] = { n1, n2, n3, n4, n5 };
   const size_t num_worlds = sizeof(nodes) / sizeof(nodes[0]);
@@ -104,7 +108,7 @@ TEST(clist, pushing) {
     ASSERT_STREQ(test_str, (char*)cl_data(nodes[i]));
   }
 
-  cl_destroy(l);
+  cl_destroy(l, simple_free);
 }
 
 TEST(clist, popping1) {
@@ -123,7 +127,7 @@ TEST(clist, popping1) {
 
   ASSERT_EQ(5, cl_size(l));
   ASSERT_EQ(n1, cl_pop_front(l));
-  ASSERT_EQ(NULL, cl_prev(cl_head(l)));
+  ASSERT_EQ(NULL, cl_prev(cl_peak_front(l)));
   ASSERT_EQ(4, cl_size(l));
   ASSERT_EQ(n2, cl_pop_front(l));
   ASSERT_EQ(3, cl_size(l));
@@ -136,13 +140,33 @@ TEST(clist, popping1) {
   ASSERT_EQ(NULL, cl_pop_back(l));
   ASSERT_EQ(0, cl_size(l));
   
-  cl_destroy_node(n1);
-  cl_destroy_node(n2);
-  cl_destroy_node(n3);
-  cl_destroy_node(n4);
-  cl_destroy_node(n5);
+  cl_destroy_node(n1, simple_free);
+  cl_destroy_node(n2, simple_free);
+  cl_destroy_node(n3, simple_free);
+  cl_destroy_node(n4, simple_free);
+  cl_destroy_node(n5, simple_free);
 
-  cl_destroy(l);
+  cl_destroy(l, simple_free);
+}
+
+TEST(clist, empl_back) {
+  cl_t* l = cl_alloc_list();
+  cl_empl_back(l, (void*)1);
+  cl_empl_back(l, (void*)2);
+  ASSERT_EQ((void*)1, cl_data(cl_peak_front(l)));
+  ASSERT_EQ((void*)2, cl_data(cl_peak_back(l)));
+
+  cl_destroy(l, NULL);
+}
+
+TEST(clist, empl_front) {
+  cl_t* l = cl_alloc_list();
+  cl_empl_front(l, (void*)2);
+  cl_empl_front(l, (void*)1);
+  ASSERT_EQ((void*)1, cl_data(cl_peak_front(l)));
+  ASSERT_EQ((void*)2, cl_data(cl_peak_back(l)));
+
+  cl_destroy(l, NULL);
 }
 
 TEST(clist, popping2) {
@@ -162,22 +186,22 @@ TEST(clist, popping2) {
   ASSERT_EQ(n1, cl_pop_front(l));
   ASSERT_EQ(n2, cl_pop_front(l));
   ASSERT_EQ(n5, cl_pop_back(l));
-  ASSERT_EQ(NULL, cl_next(cl_tail(l)));
+  ASSERT_EQ(NULL, cl_next(cl_peak_back(l)));
   ASSERT_EQ(2, cl_size(l));
   ASSERT_EQ(n3, cl_pop_front(l));
   ASSERT_EQ(n4, cl_pop_back(l));
   ASSERT_EQ(NULL, cl_pop_back(l));
   ASSERT_EQ(0, cl_size(l));
-  ASSERT_EQ(NULL, cl_head(l));
-  ASSERT_EQ(NULL, cl_tail(l));
+  ASSERT_EQ(NULL, cl_peak_front(l));
+  ASSERT_EQ(NULL, cl_peak_back(l));
   
-  cl_destroy_node(n1);
-  cl_destroy_node(n2);
-  cl_destroy_node(n3);
-  cl_destroy_node(n4);
-  cl_destroy_node(n5);
+  cl_destroy_node(n1, simple_free);
+  cl_destroy_node(n2, simple_free);
+  cl_destroy_node(n3, simple_free);
+  cl_destroy_node(n4, simple_free);
+  cl_destroy_node(n5, simple_free);
   
-  cl_destroy(l);
+  cl_destroy(l, simple_free);
 }
 
 int sort_int_nodes(const void* first, const void* second) {
@@ -199,14 +223,14 @@ TEST(clist, sort_empty) {
   cl_t* l = NULL;
   cl_sort(l, NULL);
   ASSERT_EQ(NULL, (l));
-  cl_destroy(l);
+  cl_destroy(l, simple_free);
 
   l = cl_alloc_list();
 
   cl_sort(l, NULL);
-  ASSERT_EQ(NULL, cl_head(l));
-  ASSERT_EQ(NULL, cl_tail(l));
-  cl_destroy(l);
+  ASSERT_EQ(NULL, cl_peak_front(l));
+  ASSERT_EQ(NULL, cl_peak_back(l));
+  cl_destroy(l, simple_free);
 }
 
 TEST(clist, sort_one) {
@@ -217,7 +241,7 @@ TEST(clist, sort_one) {
   cl_sort(l, NULL);
   cl_sort(l, sort_int_nodes);
 
-  cl_destroy(l);
+  cl_destroy(l, simple_free);
 }
 
 TEST(clist, sort_many) {
@@ -234,13 +258,13 @@ TEST(clist, sort_many) {
 
     cl_sort(l, sort_int_nodes);
 
-    for (const cl_node_t* n = cl_head(l); n != cl_tail(l); n = cl_next(n)) {
+    for (const cl_node_t* n = cl_peak_front(l); n != cl_peak_back(l); n = cl_next(n)) {
       int a = *(int*)cl_data(n);
       int b = *(int*)cl_data(cl_next(n));
       ASSERT_LE(a, b);
     }
 
-    cl_destroy(l);
+    cl_destroy(l, simple_free);
   }
 }
 
@@ -252,7 +276,7 @@ TEST(clist, find_zero) {
 
   l = cl_alloc_list();
   ASSERT_EQ(NULL, cl_find(l, NULL));
-  cl_destroy(l);
+  cl_destroy(l, simple_free);
 }
 
 TEST(clist, find_one) {
@@ -266,7 +290,7 @@ TEST(clist, find_one) {
   *num = 5;
   ASSERT_EQ(num, cl_data(cl_find(l, is_five)));
 
-  cl_destroy(l);
+  cl_destroy(l, simple_free);
 }
 
 TEST(clist, find_many) {
@@ -284,7 +308,7 @@ TEST(clist, find_many) {
 
     ASSERT_EQ(NULL, cl_find(l, is_five));
 
-    cl_destroy(l);
+    cl_destroy(l, simple_free);
   }
 
   for (int i = 0; i < 1000; ++i) {
@@ -307,6 +331,89 @@ TEST(clist, find_many) {
     cl_node_t* found_node = cl_find(l, is_five);
     ASSERT_EQ(selected, (int*)cl_data(found_node));
 
-    cl_destroy(l);
+    cl_destroy(l, simple_free);
   }
 }
+
+struct TestStruct {
+  int* array;
+  int data;
+};
+
+void free_test_struct(void* ts) {
+  free(((struct TestStruct*)ts)->array);
+  free(ts);
+}
+
+// Our test here is that valgrind claims unfreed blocks if the list fails to 
+// use our user-defined deallocator.
+TEST(clist, complex_destroy) {
+  cl_t* l = cl_alloc_list();
+  struct TestStruct* s = (struct TestStruct*)malloc(sizeof(*s));
+  const size_t num_elements = 10000;
+  s->array = (int*)malloc(sizeof(s->array[0]) * num_elements);
+  cl_empl_back(l, s);
+
+  cl_destroy(l, free_test_struct);
+}
+TEST(clist, complex_destroy2) {
+  cl_t* l = cl_alloc_list();
+  struct TestStruct* s = (struct TestStruct*)malloc(sizeof(*s));
+  const size_t num_elements = 10000;
+  s->array = (int*)malloc(sizeof(s->array[0]) * num_elements);
+  cl_empl_back(l, s);
+  cl_destroy_node(cl_pop_back(l), free_test_struct);
+
+  cl_destroy(l, NULL);
+}
+
+int num_calls = 0;
+void inc_by_one(void* data) {
+  ++num_calls;
+  ++(*(int*)data);
+}
+
+void assert_incremented(void* data) {
+  static int expected_value = 1;
+  ASSERT_EQ(expected_value, *(int*)data);
+  ++expected_value;
+}
+
+TEST(clist, foreach) {
+  cl_t* l = cl_alloc_list();
+  const int size = 100;
+  int nums[size];
+  for (size_t i = 0; i < size; ++i) {
+    nums[i] = (int)i;
+    cl_empl_back(l, &nums[i]);
+  }
+
+  cl_foreach(l, inc_by_one);
+  ASSERT_EQ(size, num_calls);
+
+  int expected_value = 1;
+  for (const cl_node_t* n = cl_peak_front(l); n != NULL; n = cl_next(n)) {
+    ASSERT_EQ(expected_value, *(int*)cl_data(n));
+    ++expected_value;
+  }
+
+  cl_foreach(l, assert_incremented);
+
+  cl_destroy(l, NULL);
+}
+
+// // iterator
+// TEST(clist, iterator) {
+//   cl_t* l = cl_alloc_list();
+//   const size_t size = 100;
+//   int nums[size];
+//   for (size_t i = 0; i < size; ++i) {
+//     nums[i] = i;
+//     cl_empl_back(l, &nums[i]);
+//   }
+
+
+
+//   for (cl_itr* i = cl_itr(l); i != NULL; i = cl_itr_next(i))
+
+// }
