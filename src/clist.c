@@ -7,19 +7,21 @@
 extern "C" {
 #endif
 
+// node
 struct cl_node {
   cl_node_t* prev;
   cl_node_t* next;
   void* data;
 };
 
+// list
 struct cl {
   size_t count;
   cl_node_t* head;
   cl_node_t* tail;
 };
 
-// sorted version
+// sorted list
 struct csl {
   size_t count;
   cl_node_t* head;
@@ -27,24 +29,15 @@ struct csl {
   int(*greater_than)(const void* first, const void* second);
 };
 
-cl_t* cl_alloc_list() {
-  cl_t* list = (cl_t*)malloc(sizeof(*list));
-  if (!list) return NULL;
-
-  list->count = 0;
-  list->head = NULL;
-  list->tail = NULL;
-  return list;
-}
 
 // Common cl_t and csl_t functions:
 #define CL_DECLARE_COMMON_FUNCTIONS(prefix, type) \
   size_t \
   prefix##_size(const type* l) { return l->count; } \
   const cl_node_t* \
-  prefix##_peak_front(const type* l) { return l->head; } \
+  prefix##_peek_front(const type* l) { return l->head; } \
   const cl_node_t* \
-  prefix##_peak_back(const type* l) { return l->tail; } \
+  prefix##_peek_back(const type* l) { return l->tail; } \
   void \
   prefix##_destroy(type* const l, void(*destroy_data)(void* data)) { \
     if (l == NULL) return; \
@@ -62,7 +55,7 @@ cl_t* cl_alloc_list() {
   void \
   prefix##_foreach(type* l, void(*use_data)(void* data)) { \
     if (l == NULL || use_data == NULL) return; \
-    for (const cl_node_t* n = prefix##_peak_front(l); n != NULL; n = cl_next(n)) { \
+    for (const cl_node_t* n = prefix##_peek_front(l); n != NULL; n = cl_next(n)) { \
       use_data(cl_data(n)); \
     } \
   } \
@@ -154,6 +147,16 @@ void cl_destroy_node(cl_node_t* const n, void(*destroy_data)(void* data)) {
 
 
 // cl_t only functions:
+cl_t* cl_alloc() {
+  cl_t* list = (cl_t*)malloc(sizeof(*list));
+  if (!list) return NULL;
+
+  list->count = 0;
+  list->head = NULL;
+  list->tail = NULL;
+
+  return list;
+}
 void cl_empl_back(cl_t* l, void* data) { cl_push_back(l, cl_alloc_node(data)); }
 void cl_empl_front(cl_t* l, void* data) { cl_push_front(l, cl_alloc_node(data)); }
 void cl_push_back(cl_t* const l, cl_node_t* const n) {
@@ -197,6 +200,42 @@ void cl_sort(cl_t* l, int(*greater_than)(const void* first, const void* second))
     }
   }
 }
+
+
+// csl_t only functions:
+csl_t* csl_alloc(int (*greater_than)(const void* first, const void* second)) {
+  if (!greater_than) return NULL;
+
+  csl_t* list = (csl_t*)malloc(sizeof(*list));
+  if (!list) return NULL;
+
+  list->count = 0;
+  list->head = NULL;
+  list->tail = NULL;
+  list->greater_than = greater_than;
+
+  return list;
+}
+void csl_insert(csl_t* l, cl_node_t* new_node) {
+  if (!new_node) return;
+  
+  if (!l->head || l->greater_than(l->head->data, new_node->data)) {
+      new_node->next = l->head;
+      l->head = new_node;
+  } else {
+    // find the node before the insertion point
+    cl_node_t* itr = l->head;
+    while (itr->next
+        && !l->greater_than(itr->next->data, new_node->data)) {
+      itr = itr->next;
+    }
+    new_node->next = itr->next;
+    itr->next = new_node;
+  }
+
+  ++(l->count);
+}
+void csl_insertd(csl_t* l, void* data) { csl_insert(l, cl_alloc_node(data)); }
 
 #ifdef __cplusplus
 }

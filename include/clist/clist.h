@@ -41,16 +41,16 @@ void cl_destroy_node(cl_node_t* n, void(*destroy_data)(void* data));
 // LIST FUNCTIONS:
 
 // Dynamically allocate a new, empty list. Returns NULL on failure to allocate.
-cl_t* cl_alloc_list();
+cl_t* cl_alloc();
 
 // Get the size of the list.
 size_t cl_size(const cl_t* l);
 
 // Return the node at the front, without popping.
-const cl_node_t* cl_peak_front(const cl_t* l);
+const cl_node_t* cl_peek_front(const cl_t* l);
 
 // Return the node at the back, without popping.
-const cl_node_t* cl_peak_back(const cl_t* l);
+const cl_node_t* cl_peek_back(const cl_t* l);
 
 // Destroy the list and all of its nodes, applying the destroy_data function 
 // to each node's underlying data. If the function is NULL, the data is left 
@@ -103,44 +103,31 @@ cl_node_t* cl_find(const cl_t* l, int(*predicate)(const void* data));
 
 // SORTED LIST FUNCTIONS:
 
+// Insert an element, maintaining sorted order, least to greatest. Does nothing 
+// if the new_node is NULL.
+void csl_insert(csl_t* sl, cl_node_t* new_node);
+
+// Insert an element, maintaining sorted order, least to greatest.
+void csl_insertd(csl_t* sl, void* data);
+
 // Dynamically allocate a new, empty sorted list. Returns NULL and does not 
 // allocate if comparator function is NULL. Returns NULL on failure to 
 // allocate.
-csl_t* csl_sorted_alloc(int (*greater_than)(const void* first, const void* second));
-
-// Dynamically allocate a new, empty list. Returns NULL on failure to allocate.
-csl_t* csl_alloc_list();
+csl_t* csl_alloc(int (*greater_than)(const void* first, const void* second));
 
 // Get the size of the list.
 size_t csl_size(const csl_t* l);
 
 // Return the node at the front, without popping.
-const cl_node_t* csl_peak_front(const csl_t* l);
+const cl_node_t* csl_peek_front(const csl_t* l);
 
 // Return the node at the back, without popping.
-const cl_node_t* csl_peak_back(const csl_t* l);
-
-// Dynamically allocate a new node with the underlying data provided. Returns 
-// NULL on failure to allocate.
-cl_node_t* csl_alloc_node(void* data);
-
-// Get the next node to the given node. NULL if the given node is the back.
-const cl_node_t* csl_next(const cl_node_t* n);
-
-// Get the previous node to the given node. NULL if the given node is the front.
-const cl_node_t* csl_prev(const cl_node_t* n);
-
-// Fetch the data at the given node.
-void* csl_data(const cl_node_t* n);
+const cl_node_t* csl_peek_back(const csl_t* l);
 
 // Destroy the list and all of its nodes, applying the destroy_data function 
 // to each node's underlying data. If the function is NULL, the data is left 
 // malloc'd.
 void csl_destroy(csl_t* l, void(*destroy_data)(void* data));
-
-// Destroy the given node, applying the destroy_data function the node's 
-// underlying data. If the function is NULL, the data is left malloc'd.
-void csl_destroy_node(cl_node_t* n, void(*destroy_data)(void* data));
 
 // For each item in the list, apply the use_data function to the underlying 
 // data.

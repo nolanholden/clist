@@ -12,10 +12,10 @@ void simple_free(void* data) {
 
 TEST(clist, initialize_list) {
   ASSERT_EQ(0,0);
-  cl_t* l = cl_alloc_list();
+  cl_t* l = cl_alloc();
   ASSERT_EQ(0, cl_size(l));
-  ASSERT_EQ(NULL, cl_peak_front(l));
-  ASSERT_EQ(NULL, cl_peak_back(l));
+  ASSERT_EQ(NULL, cl_peek_front(l));
+  ASSERT_EQ(NULL, cl_peek_back(l));
   cl_destroy(l, simple_free);
 }
 
@@ -38,20 +38,20 @@ TEST(clist, initialize_node) {
 TEST(clist, push_pop_one) {
   {
     cl_node_t* n = cl_alloc_node(strdup("hello, world"));
-    cl_t* l = cl_alloc_list();
+    cl_t* l = cl_alloc();
     cl_push_front(l, n);
     ASSERT_EQ(1, cl_size(l));
-    ASSERT_EQ(n, cl_peak_front(l));
-    ASSERT_EQ(n, cl_peak_back(l));
+    ASSERT_EQ(n, cl_peek_front(l));
+    ASSERT_EQ(n, cl_peek_back(l));
     cl_destroy(l, simple_free);
   }
   {
     cl_node_t* n = cl_alloc_node(strdup("hello, world"));
-    cl_t* l = cl_alloc_list();
+    cl_t* l = cl_alloc();
     cl_push_back(l, n);
     ASSERT_EQ(1, cl_size(l));
-    ASSERT_EQ(n, cl_peak_front(l));
-    ASSERT_EQ(n, cl_peak_back(l));
+    ASSERT_EQ(n, cl_peek_front(l));
+    ASSERT_EQ(n, cl_peek_back(l));
     cl_destroy(l, simple_free);
   }
 }
@@ -62,18 +62,18 @@ TEST(clist, pushing) {
   cl_node_t* n3 = cl_alloc_node(strdup("hello, world3"));
   cl_node_t* n4 = cl_alloc_node(strdup("hello, world4"));
   cl_node_t* n5 = cl_alloc_node(strdup("hello, world5"));
-  cl_t* l = cl_alloc_list();
+  cl_t* l = cl_alloc();
 
   cl_push_front(l, n2);
   cl_push_back (l, n3);
   ASSERT_EQ(2, cl_size(l));
-  ASSERT_EQ(n2, cl_peak_front(l));
-  ASSERT_EQ(n3, cl_peak_back(l));
+  ASSERT_EQ(n2, cl_peek_front(l));
+  ASSERT_EQ(n3, cl_peek_back(l));
   
   cl_push_front(l, n1);
   ASSERT_EQ(3,  cl_size(l));
-  ASSERT_EQ(n1, cl_peak_front(l));
-  ASSERT_EQ(n3, cl_peak_back(l));
+  ASSERT_EQ(n1, cl_peek_front(l));
+  ASSERT_EQ(n3, cl_peek_back(l));
   ASSERT_EQ(NULL, cl_prev(n1));
   ASSERT_EQ(n2,   cl_next(n1));
   ASSERT_EQ(n1,   cl_prev(n2));
@@ -83,13 +83,13 @@ TEST(clist, pushing) {
 
   cl_push_back(l, n4);
   ASSERT_EQ(4, cl_size(l));
-  ASSERT_EQ(n1, cl_peak_front(l));
-  ASSERT_EQ(n4, cl_peak_back(l));
+  ASSERT_EQ(n1, cl_peek_front(l));
+  ASSERT_EQ(n4, cl_peek_back(l));
 
   cl_push_back(l, n5);
   ASSERT_EQ(5, cl_size(l));
-  ASSERT_EQ(n1, cl_peak_front(l));
-  ASSERT_EQ(n5, cl_peak_back(l));
+  ASSERT_EQ(n1, cl_peek_front(l));
+  ASSERT_EQ(n5, cl_peek_back(l));
   
   cl_node_t* nodes[] = { n1, n2, n3, n4, n5 };
   const size_t num_worlds = sizeof(nodes) / sizeof(nodes[0]);
@@ -118,7 +118,7 @@ TEST(clist, popping1) {
   cl_node_t* n4 = cl_alloc_node(strdup("hello, world4"));
   cl_node_t* n5 = cl_alloc_node(strdup("hello, world5"));
   
-  cl_t* l = cl_alloc_list();
+  cl_t* l = cl_alloc();
   cl_push_back(l, n1);
   cl_push_back(l, n2);
   cl_push_back(l, n3);
@@ -127,7 +127,7 @@ TEST(clist, popping1) {
 
   ASSERT_EQ(5, cl_size(l));
   ASSERT_EQ(n1, cl_pop_front(l));
-  ASSERT_EQ(NULL, cl_prev(cl_peak_front(l)));
+  ASSERT_EQ(NULL, cl_prev(cl_peek_front(l)));
   ASSERT_EQ(4, cl_size(l));
   ASSERT_EQ(n2, cl_pop_front(l));
   ASSERT_EQ(3, cl_size(l));
@@ -150,21 +150,21 @@ TEST(clist, popping1) {
 }
 
 TEST(clist, empl_back) {
-  cl_t* l = cl_alloc_list();
+  cl_t* l = cl_alloc();
   cl_empl_back(l, (void*)1);
   cl_empl_back(l, (void*)2);
-  ASSERT_EQ((void*)1, cl_data(cl_peak_front(l)));
-  ASSERT_EQ((void*)2, cl_data(cl_peak_back(l)));
+  ASSERT_EQ((void*)1, cl_data(cl_peek_front(l)));
+  ASSERT_EQ((void*)2, cl_data(cl_peek_back(l)));
 
   cl_destroy(l, NULL);
 }
 
 TEST(clist, empl_front) {
-  cl_t* l = cl_alloc_list();
+  cl_t* l = cl_alloc();
   cl_empl_front(l, (void*)2);
   cl_empl_front(l, (void*)1);
-  ASSERT_EQ((void*)1, cl_data(cl_peak_front(l)));
-  ASSERT_EQ((void*)2, cl_data(cl_peak_back(l)));
+  ASSERT_EQ((void*)1, cl_data(cl_peek_front(l)));
+  ASSERT_EQ((void*)2, cl_data(cl_peek_back(l)));
 
   cl_destroy(l, NULL);
 }
@@ -176,7 +176,7 @@ TEST(clist, popping2) {
   cl_node_t* n4 = cl_alloc_node(strdup("hello, world4"));
   cl_node_t* n5 = cl_alloc_node(strdup("hello, world5"));
   
-  cl_t* l = cl_alloc_list();
+  cl_t* l = cl_alloc();
   cl_push_back(l, n1);
   cl_push_back(l, n2);
   cl_push_back(l, n3);
@@ -186,14 +186,14 @@ TEST(clist, popping2) {
   ASSERT_EQ(n1, cl_pop_front(l));
   ASSERT_EQ(n2, cl_pop_front(l));
   ASSERT_EQ(n5, cl_pop_back(l));
-  ASSERT_EQ(NULL, cl_next(cl_peak_back(l)));
+  ASSERT_EQ(NULL, cl_next(cl_peek_back(l)));
   ASSERT_EQ(2, cl_size(l));
   ASSERT_EQ(n3, cl_pop_front(l));
   ASSERT_EQ(n4, cl_pop_back(l));
   ASSERT_EQ(NULL, cl_pop_back(l));
   ASSERT_EQ(0, cl_size(l));
-  ASSERT_EQ(NULL, cl_peak_front(l));
-  ASSERT_EQ(NULL, cl_peak_back(l));
+  ASSERT_EQ(NULL, cl_peek_front(l));
+  ASSERT_EQ(NULL, cl_peek_back(l));
   
   cl_destroy_node(n1, simple_free);
   cl_destroy_node(n2, simple_free);
@@ -225,16 +225,16 @@ TEST(clist, sort_empty) {
   ASSERT_EQ(NULL, (l));
   cl_destroy(l, simple_free);
 
-  l = cl_alloc_list();
+  l = cl_alloc();
 
   cl_sort(l, NULL);
-  ASSERT_EQ(NULL, cl_peak_front(l));
-  ASSERT_EQ(NULL, cl_peak_back(l));
+  ASSERT_EQ(NULL, cl_peek_front(l));
+  ASSERT_EQ(NULL, cl_peek_back(l));
   cl_destroy(l, simple_free);
 }
 
 TEST(clist, sort_one) {
-  cl_t* l = cl_alloc_list();
+  cl_t* l = cl_alloc();
   int* num = (int*)malloc(sizeof(*num));
   *num = 127;
   cl_push_back(l, cl_alloc_node(num));
@@ -248,7 +248,7 @@ TEST(clist, sort_many) {
   for (int i = 0; i < 1000; ++i) {
     srand((unsigned int)time(NULL));
     const size_t num_nodes = 100;
-    cl_t* l = cl_alloc_list();
+    cl_t* l = cl_alloc();
 
     for (size_t j = 0; j < num_nodes; ++j) {
       int* num = (int*)malloc(sizeof(*num));
@@ -258,7 +258,7 @@ TEST(clist, sort_many) {
 
     cl_sort(l, sort_int_nodes);
 
-    for (const cl_node_t* n = cl_peak_front(l); n != cl_peak_back(l); n = cl_next(n)) {
+    for (const cl_node_t* n = cl_peek_front(l); n != cl_peek_back(l); n = cl_next(n)) {
       int a = *(int*)cl_data(n);
       int b = *(int*)cl_data(cl_next(n));
       ASSERT_LE(a, b);
@@ -274,13 +274,13 @@ TEST(clist, find_zero) {
   cl_t* l = NULL;
   ASSERT_EQ(NULL, cl_find(l, NULL));
 
-  l = cl_alloc_list();
+  l = cl_alloc();
   ASSERT_EQ(NULL, cl_find(l, NULL));
   cl_destroy(l, simple_free);
 }
 
 TEST(clist, find_one) {
-  cl_t* l = cl_alloc_list();
+  cl_t* l = cl_alloc();
 
   int* num = (int*)malloc(sizeof(*num));
   *num = 4;
@@ -297,7 +297,7 @@ TEST(clist, find_many) {
   for (int i = 0; i < 1000; ++i) {
     srand((unsigned int)time(NULL));
     const size_t num_nodes = 100;
-    cl_t* l = cl_alloc_list();
+    cl_t* l = cl_alloc();
     
     for (size_t j = 0; j < num_nodes; ++j) {
       int* num = (int*)malloc(sizeof(*num));
@@ -314,7 +314,7 @@ TEST(clist, find_many) {
   for (int i = 0; i < 1000; ++i) {
     srand((unsigned int)time(NULL));
     const size_t num_nodes = 100;
-    cl_t* l = cl_alloc_list();
+    cl_t* l = cl_alloc();
     
     const size_t select = rand() % num_nodes;
     const int* selected = NULL;
@@ -348,7 +348,7 @@ void free_test_struct(void* ts) {
 // Our test here is that valgrind claims unfreed blocks if the list fails to 
 // use our user-defined deallocator.
 TEST(clist, complex_destroy) {
-  cl_t* l = cl_alloc_list();
+  cl_t* l = cl_alloc();
   struct TestStruct* s = (struct TestStruct*)malloc(sizeof(*s));
   const size_t num_elements = 10000;
   s->array = (int*)malloc(sizeof(s->array[0]) * num_elements);
@@ -357,7 +357,7 @@ TEST(clist, complex_destroy) {
   cl_destroy(l, free_test_struct);
 }
 TEST(clist, complex_destroy2) {
-  cl_t* l = cl_alloc_list();
+  cl_t* l = cl_alloc();
   struct TestStruct* s = (struct TestStruct*)malloc(sizeof(*s));
   const size_t num_elements = 10000;
   s->array = (int*)malloc(sizeof(s->array[0]) * num_elements);
@@ -380,7 +380,7 @@ void assert_incremented(void* data) {
 }
 
 TEST(clist, foreach) {
-  cl_t* l = cl_alloc_list();
+  cl_t* l = cl_alloc();
   const int size = 100;
   int nums[size];
   for (int i = 0; i < size; ++i) {
@@ -392,7 +392,7 @@ TEST(clist, foreach) {
   ASSERT_EQ(size, num_calls);
 
   int expected_value = 1;
-  for (const cl_node_t* n = cl_peak_front(l); n != NULL; n = cl_next(n)) {
+  for (const cl_node_t* n = cl_peek_front(l); n != NULL; n = cl_next(n)) {
     ASSERT_EQ(expected_value, *(int*)cl_data(n));
     ++expected_value;
   }
@@ -409,7 +409,7 @@ void use_data_dummy(void* data) { ++num_calls2; UNUSED(data); }
 int comparator_dummy(const void* a, const void* b) { ++num_calls2; UNUSED(a); UNUSED(b); return 0; }
 
 TEST(clist, no_calls_if_null) {
-  cl_t* l = cl_alloc_list();
+  cl_t* l = cl_alloc();
   cl_foreach(l, use_data_dummy);
   cl_sort(l, comparator_dummy);
 
@@ -420,19 +420,25 @@ int int_greater_than(const void* a, const void* b) {
   return *(int*)a > *(int*)b;
 }
 
-// // also, we are interested in whether this causes memory leak; it should not
-// TEST(clist_sorted, no_init) {
-//   ASSERT_EQ(NULL, cl_sorted_alloc(NULL));
-// }
+// should not leak!
+TEST(clist_sorted, no_init) {
+  ASSERT_EQ(NULL, csl_alloc(NULL));
+}
 
-// TEST(clist_sorted, init) {
-//   cl_sorted_t* sl = cl_sorted_alloc(int_greater_than);
-//   srand((unsigned)time(NULL));
-//   const int size = 100;
-//   int nums[size];
-//   for (int i = 0; i < size; ++i) {
-//     nums[i] = rand();
-//     cl_empl_back(l, &nums[i]);
-//   }
-//   cl_foreach()
-// }
+TEST(clist_sorted, insert) {
+  csl_t* l = csl_alloc(int_greater_than);
+  srand((unsigned)time(NULL));
+  const size_t num_ints = 500;
+  int nums[num_ints];
+  for (size_t i = 0; i < num_ints; ++i) {
+    nums[i] = rand();
+    csl_insert(l, cl_alloc_node(&nums[i]));
+  }
+
+  int last = -1;
+  for (const cl_node_t* n = csl_peek_front(l); (n = cl_next(n));) {
+    ASSERT_LE(last, *(int*)cl_data(n));
+  }
+
+  csl_destroy(l, NULL);
+}
