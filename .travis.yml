@@ -19,4 +19,7 @@ script:
   - ./travis.sh
 
 after_success:
-  - coveralls --root . -E ".*CMakeFiles.*" -e googletest/ tests/clist_unittests.cc
+  - coveralls --root . \
+    -E ".*CMakeFiles.*" \
+    -e googletest/ \
+    -e tests/
